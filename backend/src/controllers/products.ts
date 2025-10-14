@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Error as MongooseError } from 'mongoose';
+import ConflictError from '../errors/conflict-error';
 import Product from '../models/product';
 import BadRequestError from '../errors/bad-request-error';
 
@@ -25,6 +26,12 @@ export const createProduct = (
   })
     .then((product) => res.status(201).send(product))
     .catch((err) => {
+      if (err instanceof Error && err.message.includes('E11000')) {
+        const error = new ConflictError(
+          'Ресурс с таким уникальным значением уже существует',
+        );
+        return res.status(error.statusCode).json({ message: error.message });
+      }
       if (err instanceof MongooseError.ValidationError) {
         return next(
           new BadRequestError('Ошибка валидации данных при создании товара'),

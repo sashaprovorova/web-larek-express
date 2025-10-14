@@ -32,7 +32,7 @@ const createOrder = (req: Request, res: Response, next: NextFunction) => {
         );
       }
 
-      return res.status(201).send({ id: faker.string.uuid(), total: sum });
+      return res.status(200).send({ id: faker.string.uuid(), total: sum });
     })
     .catch(next);
 };
