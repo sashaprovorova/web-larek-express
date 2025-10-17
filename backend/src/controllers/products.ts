@@ -1,22 +1,21 @@
-import { NextFunction, Request, Response } from "express";
-import { Error as MongooseError } from "mongoose";
-import ConflictError from "../errors/conflict-error";
-import Product from "../models/product";
-import BadRequestError from "../errors/bad-request-error";
+import { NextFunction, Request, Response } from 'express';
+import { Error as MongooseError } from 'mongoose';
+import ConflictError from '../errors/conflict-error';
+import Product from '../models/product';
+import BadRequestError from '../errors/bad-request-error';
 
-export const getProducts = (_req: Request, res: Response, next: NextFunction) =>
-  Product.find({})
-    .then((products) =>
-      res.status(200).send({ items: products, total: products.length })
-    )
-    .catch((err) => next(err));
+export const getProducts = (_req: Request, res: Response, next: NextFunction) => Product.find({})
+  .then((products) => res.status(200).send({ items: products, total: products.length }))
+  .catch((err) => next(err));
 
 export const createProduct = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const { title, image, category, description, price } = req.body;
+  const {
+    title, image, category, description, price,
+  } = req.body;
 
   return Product.create({
     title,
@@ -29,14 +28,14 @@ export const createProduct = (
     .catch((err) => {
       if (err instanceof MongooseError.ValidationError) {
         return next(
-          new BadRequestError("Ошибка валидации данных при создании товара")
+          new BadRequestError('Ошибка валидации данных при создании товара'),
         );
       }
-      if (err instanceof Error && err.message.includes("E11000")) {
+      if (err instanceof Error && err.message.includes('E11000')) {
         return next(
           new ConflictError(
-            "Ресурс с таким уникальным значением уже существует"
-          )
+            'Ресурс с таким уникальным значением уже существует',
+          ),
         );
       }
       return next(err as Error);
