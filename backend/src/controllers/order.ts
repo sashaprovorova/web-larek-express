@@ -7,13 +7,13 @@ const createOrder = (req: Request, res: Response, next: NextFunction) => {
   const { total, items } = req.body;
 
   return Product.find({ _id: { $in: items } })
-    .then((docs) => {
-      if (docs.length !== items.length) {
+    .then((prod) => {
+      if (prod.length !== items.length) {
         throw new BadRequestError('Один или несколько товаров не найдены');
       }
 
       if (
-        docs.some(
+        prod.some(
           (products) => products.price === null || typeof products.price !== 'number',
         )
       ) {
@@ -22,7 +22,7 @@ const createOrder = (req: Request, res: Response, next: NextFunction) => {
         );
       }
 
-      const sum = docs.reduce(
+      const sum = prod.reduce(
         (acc, product) => acc + (product.price as number),
         0,
       );

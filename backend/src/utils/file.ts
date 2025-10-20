@@ -1,18 +1,9 @@
-import fs from "fs/promises";
-import path from "path";
+import fs from 'fs/promises';
+import path from 'path';
+import { UPLOAD_PATH, UPLOAD_PATH_TEMP } from '../config';
 
-const TEMP_DIR = path.join(
-  __dirname,
-  "..",
-  "public",
-  process.env.UPLOAD_PATH_TEMP || "temp"
-);
-const IMAGES_DIR = path.join(
-  __dirname,
-  "..",
-  "public",
-  process.env.UPLOAD_PATH || "images"
-);
+const TEMP_DIR = path.join(__dirname, '..', 'public', UPLOAD_PATH_TEMP);
+const IMAGES_DIR = path.join(__dirname, '..', 'public', UPLOAD_PATH);
 
 export async function ensureDirs() {
   await fs.mkdir(TEMP_DIR, { recursive: true });
@@ -24,7 +15,7 @@ export async function moveFromTempToImages(fileName: string) {
   const from = path.join(TEMP_DIR, base);
   const to = path.join(IMAGES_DIR, base);
   await fs.rename(from, to).catch(async (e) => {
-    if ((e as any).code === "EXDEV") {
+    if ((e as any).code === 'EXDEV') {
       await fs.copyFile(from, to);
       await fs.unlink(from);
     } else {
@@ -35,8 +26,8 @@ export async function moveFromTempToImages(fileName: string) {
 }
 
 export async function deleteIfExists(publicPath: string) {
-  const isImages = publicPath.startsWith("/images/");
-  const isTemp = publicPath.startsWith("/temp/");
+  const isImages = publicPath.startsWith('/images/');
+  const isTemp = publicPath.startsWith('/temp/');
   if (!isImages && !isTemp) return;
 
   const base = path.basename(publicPath);
@@ -44,5 +35,7 @@ export async function deleteIfExists(publicPath: string) {
   const full = path.join(dir, base);
   try {
     await fs.unlink(full);
-  } catch {}
+  } catch (e: any) {
+    if (e?.code !== 'ENOENT') throw e;
+  }
 }

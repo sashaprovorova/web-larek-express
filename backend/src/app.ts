@@ -1,4 +1,3 @@
-import path from "path";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -11,16 +10,10 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth";
 import uploadRouter from "./routes/upload";
 import { ensureDirs } from "./utils/file";
-import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+import { PORT, DB_ADDRESS, ORIGIN } from "./config";
 
-const { PORT = 3000, DB_ADDRESS = "mongodb://127.0.0.1:27017/weblarek" } =
-  process.env;
-const ORIGIN = process.env.ORIGIN_ALLOW || "http://localhost:5173";
 const app = express();
-
-app.use(cookieParser());
-
 app.use(
   cors({
     origin: ORIGIN,
@@ -30,23 +23,28 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, "public")));
+app.use(requestLogger);
 
 ensureDirs().catch(() => {});
 
-mongoose.connect(DB_ADDRESS);
-
-app.use(express.static(path.join(__dirname, "public")));
-
-app.use(requestLogger);
 app.use("/auth", authRouter);
 app.use("/upload", uploadRouter);
-
 app.use("/product", productRouter);
 app.use("/order", orderRouter);
 
 app.use(errorLogger);
-
 app.use(errors());
 app.use(errorHandler);
 
-app.listen(PORT, () => {});
+mongoose
+  .connect(DB_ADDRESS)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection error:", err);
+  });

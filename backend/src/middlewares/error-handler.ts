@@ -1,30 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
-import { Error } from 'mongoose';
-import BadRequestError from '../errors/bad-request-error';
-import ConflictError from '../errors/conflict-error';
-import NotFoundError from '../errors/not-found-error';
 
 function errorHandler(
-  error: Error,
+  error: any,
   _req: Request,
   res: Response,
   _next: NextFunction,
 ) {
-  if (error instanceof Error && error.message.includes('E11000')) {
-    const err = new ConflictError(
-      'Ресурс с таким уникальным значением уже существует',
-    );
-    return res.status(err.statusCode).json({ message: err.message });
-  }
-  if (
-    error instanceof BadRequestError
-    || error instanceof ConflictError
-    || error instanceof NotFoundError
-  ) {
-    return res.status(error.statusCode).json({ message: error.message });
-  }
-
-  return res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+  const status = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
+  const message = error?.message || 'Внутренняя ошибка сервера';
+  res.status(status).json({ message });
 }
 
 export default errorHandler;

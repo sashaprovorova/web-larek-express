@@ -1,6 +1,8 @@
-import { model, Model, Schema, Document } from "mongoose";
-import validator from "validator";
-import bcrypt from "bcryptjs";
+import {
+  model, Model, Schema, Document,
+} from 'mongoose';
+import validator from 'validator';
+import bcrypt from 'bcryptjs';
 
 interface IToken {
   token: string;
@@ -28,7 +30,7 @@ const userSchema = new Schema<IUserDoc, IUserModel>({
     type: String,
     minlength: [2, 'Минимальная длина поля "name" - 2'],
     maxlength: [30, 'Максимальная длина поля "name" - 30'],
-    default: "Ё-мое",
+    default: 'Ё-мое',
   },
   email: {
     type: String,
@@ -36,7 +38,7 @@ const userSchema = new Schema<IUserDoc, IUserModel>({
     unique: true,
     validate: {
       validator: (val: string) => validator.isEmail(val),
-      message: "Некорректный email",
+      message: 'Некорректный email',
     },
   },
   password: {
@@ -53,28 +55,28 @@ const userSchema = new Schema<IUserDoc, IUserModel>({
 });
 
 userSchema.static(
-  "findUserByCredentials",
+  'findUserByCredentials',
   function findUserByCredentials(
     this: IUserModel,
     email: string,
-    password: string
+    password: string,
   ) {
     return this.findOne({ email })
-      .select("+password")
+      .select('+password')
       .then((user) => {
         if (!user) {
-          return Promise.reject(new Error("Неправильные почта или пароль"));
+          return Promise.reject(new Error('Неправильные почта или пароль'));
         }
 
         return bcrypt.compare(password, user.password).then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error("Неправильные почта или пароль"));
+            return Promise.reject(new Error('Неправильные почта или пароль'));
           }
 
           return user;
         });
       });
-  }
+  },
 );
 
-export default model<IUserDoc, IUserModel>("user", userSchema);
+export default model<IUserDoc, IUserModel>('user', userSchema);

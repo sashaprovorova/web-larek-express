@@ -1,14 +1,21 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
+import BadRequestError from '../errors/bad-request-error';
 
-export const uploadFile = (req: Request, res: Response) => {
-  const file = (req as any).file as Express.Multer.File | undefined;
+type UploadedFile = { filename: string; originalname: string };
+
+export default function uploadFile(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const file = (req as any).file as UploadedFile | undefined;
 
   if (!file) {
-    return res.status(400).json({ message: "Файл не передан" });
+    return next(new BadRequestError('Файл не передан'));
   }
 
   return res.status(200).json({
     fileName: `/images/${file.filename}`,
     originalName: file.originalname,
   });
-};
+}

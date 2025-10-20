@@ -1,4 +1,4 @@
-import { celebrate, Joi, Segments } from "celebrate";
+import { celebrate, Joi, Segments } from 'celebrate';
 
 export const validateCreateProduct = celebrate({
   [Segments.BODY]: Joi.object({
@@ -21,14 +21,14 @@ export const validateUpdateProduct = celebrate({
       originalName: Joi.string().required(),
     }),
     category: Joi.string(),
-    description: Joi.string().allow("").optional(),
+    description: Joi.string().allow('').optional(),
     price: Joi.number().allow(null),
   }).min(1),
 });
 
 export const validateCreateOrder = celebrate({
   [Segments.BODY]: Joi.object({
-    payment: Joi.string().valid("card", "online").required(),
+    payment: Joi.string().valid('card', 'online').required(),
     email: Joi.string().email().required(),
     phone: Joi.string().required(),
     address: Joi.string().required(),
@@ -37,12 +37,11 @@ export const validateCreateOrder = celebrate({
   }),
 });
 
-export const validateObjectIdParam = (paramName = "id") =>
-  celebrate({
-    [Segments.PARAMS]: Joi.object({
-      [paramName]: Joi.string().hex().length(24).required(),
-    }),
-  });
+export const validateObjectIdParam = (paramName = 'id') => celebrate({
+  [Segments.PARAMS]: Joi.object({
+    [paramName]: Joi.string().hex().length(24).required(),
+  }),
+});
 
 export const validateRegister = celebrate({
   [Segments.BODY]: Joi.object({
